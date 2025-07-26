@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Verification System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="text"], input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            transform: scale(1.2);
+            margin-right: 12px;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .verify-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .verify-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status {
+            margin-top: 1rem;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+            text-align: left;
+        }
+
+        .info-box h3 {
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box ul {
+            margin: 0.5rem 0 0 1rem;
+        }
+
+        .info-box li {
+            margin-bottom: 0.3rem;
+            color: #424242;
+        }
+
+        .privacy-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+            text-align: left;
+        }
+
+        .privacy-box h3 {
+            color: #f57c00;
+            margin-bottom: 0.5rem;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .optional-section {
+            background: #f0f4f8;
+            border: 1px solid #d1d9e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 1rem 0;
+        }
+
+        .optional-title {
+            color: #2c5aa0;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .warning-text {
+            font-size: 0.9rem;
+            color: #dc3545;
+            font-style: italic;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <h1>Server Verification</h1>
+        <p class="subtitle">Secure your community with advanced verification</p>
+        
+        <div class="info-box">
+            <h3><i class="fas fa-info-circle"></i> Required Data Collection:</h3>
+            <ul>
+                <li>Hardware ID for device verification</li>
+                <li>IP address for location analysis</li>
+                <li>Discord User ID for server verification</li>
+                <li>Browser fingerprint for security</li>
+                <li>Timezone and language settings</li>
+            </ul>
+        </div>
+
+        <div class="privacy-box">
+            <h3><i class="fas fa-exclamation-triangle"></i> Optional Enhanced Security:</h3>
+            <p>The following features are optional and can help improve server security. You can enable or disable them below:</p>
+        </div>
+
+        <form id="verificationForm">
+            <div class="form-group">
+                <label for="discordId">
+                    <i class="fab fa-discord"></i> Discord User ID *
+                </label>
+                <input type="text" id="discordId" name="discordId" placeholder="Your 18-digit Discord User ID" required>
+            </div>
+
+            <div class="optional-section">
+                <div class="optional-title">🔒 Enhanced Security Options</div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableGeolocation" name="enableGeolocation">
+                    <label for="enableGeolocation">
+                        <strong>Enable Geolocation Tracking</strong><br>
+                        <small>Helps detect location spoofing and VPN usage</small>
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableCookies" name="enableCookies">
+                    <label for="enableCookies">
+                        <strong>Allow Enhanced Cookies</strong><br>
+                        <small>Stores device fingerprint for better duplicate detection</small>
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableKeystroke" name="enableKeystroke">
+                    <label for="enableKeystroke">
+                        <strong>Enable Typing Pattern Analysis</strong><br>
+                        <small>Analyzes typing patterns for bot detection</small>
+                        <div class="warning-text">⚠️ This monitors your typing behavior on this page only</div>
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableAdvancedFingerprinting" name="enableAdvancedFingerprinting">
+                    <label for="enableAdvancedFingerprinting">
+                        <strong>Advanced Device Fingerprinting</strong><br>
+                        <small>Collects detailed device information for security</small>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="verify-btn" id="verifyBtn">
+                <i class="fas fa-check-circle"></i> Start Verification
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner"></i> Processing verification...
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="footer">
+            <i class="fas fa-lock"></i> Your data is encrypted and secure<br>
+            <small>* Required fields | Optional features can be disabled anytime</small>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced verification system with optional features
+        class AdvancedVerificationSystem {
+            constructor() {
+                this.keystrokeData = [];
+                this.mouseData = [];
+                this.startTime = Date.now();
+                this.initializeSystem();
+            }
+
+            async initializeSystem() {
+                this.hwid = await this.generateHWID();
+                this.ipAddress = await this.getIPAddress();
+                this.browserFingerprint = this.getBrowserFingerprint();
+                this.setupEventListeners();
+                this.detectVPN();
+            }
+
+            async generateHWID() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.textBaseline = 'top';
+                ctx.font = '14px Arial';
+                ctx.fillText('Hardware ID Generator', 2, 2);
+                
+                const canvasData = canvas.toDataURL();
+                const screenData = `${screen.width}x${screen.height}x${screen.colorDepth}`;
+                const timezoneData = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const languageData = navigator.language;
+                const platformData = navigator.platform;
+                const memoryData = navigator.deviceMemory || 'unknown';
+                const concurrencyData = navigator.hardwareConcurrency || 'unknown';
+                
+                const combinedData = canvasData + screenData + timezoneData + languageData + platformData + memoryData + concurrencyData;
+                
+                // Enhanced hash function
+                let hash = 0;
+                for (let i = 0; i < combinedData.length; i++) {
+                    const char = combinedData.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                
+                return Math.abs(hash).toString(16);
+            }
+
+            async getIPAddress() {
+                try {
+                    const response = await fetch('https://api.ipify.org?format=json');
+                    const data = await response.json();
+                    return data.ip;
+                } catch (error) {
+                    console.error('Failed to get IP address:', error);
+                    return 'unknown';
+                }
+            }
+
+            getBrowserFingerprint() {
+                return {
+                    userAgent: navigator.userAgent,
+                    language: navigator.language,
+                    languages: navigator.languages,
+                    platform: navigator.platform,
+                    cookieEnabled: navigator.cookieEnabled,
+                    doNotTrack: navigator.doNotTrack,
+                    hardwareConcurrency: navigator.hardwareConcurrency,
+                    maxTouchPoints: navigator.maxTouchPoints,
+                    vendor: navigator.vendor,
+                    webdriver: navigator.webdriver,
+                    deviceMemory: navigator.deviceMemory,
+                    connection: navigator.connection ? {
+                        effectiveType: navigator.connection.effectiveType,
+                        downlink: navigator.connection.downlink
+                    } : null,
+                    screen: {
+                        width: screen.width,
+                        height: screen.height,
+                        colorDepth: screen.colorDepth,
+                        pixelDepth: screen.pixelDepth
+                    },
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    timezoneOffset: new Date().getTimezoneOffset()
+                };
+            }
+
+            async getGeolocation() {
+                return new Promise((resolve) => {
+                    if (!navigator.geolocation) {
+                        resolve(null);
+                        return;
+                    }
+
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            resolve({
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude,
+                                accuracy: position.coords.accuracy,
+                                timestamp: position.timestamp
+                            });
+                        },
+                        (error) => {
+                            console.warn('Geolocation error:', error);
+                            resolve(null);
+                        },
+                        { timeout: 10000, enableHighAccuracy: true }
+                    );
+                });
+            }
+
+            getAdvancedFingerprint() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // More sophisticated canvas fingerprinting
+                ctx.textBaseline = 'alphabetic';
+                ctx.fillStyle = '#f60';
+                ctx.fillRect(125, 1, 62, 20);
+                ctx.fillStyle = '#069';
+                ctx.font = '11pt Arial';
+                ctx.fillText('Cwm fjordbank glyphs vext quiz 😃', 2, 15);
+                ctx.fillStyle = 'rgba(102, 204, 0, 0.2)';
+                ctx.font = '18pt Arial';
+                ctx.fillText('BrowserLeaks,com <canvas> 1.0', 4, 45);
+
+                // WebGL fingerprinting
+                const webglCanvas = document.createElement('canvas');
+                const gl = webglCanvas.getContext('webgl');
+                let webglData = null;
+                
+                if (gl) {
+                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                    webglData = {
+                        vendor: gl.getParameter(gl.VENDOR),
+                        renderer: gl.getParameter(gl.RENDERER),
+                        version: gl.getParameter(gl.VERSION),
+                        shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
+                        unmaskedVendor: debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : null,
+                        unmaskedRenderer: debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : null
+                    };
+                }
+
+                // Audio fingerprinting
+                let audioFingerprint = null;
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const analyser = audioContext.createAnalyser();
+                    const gain = audioContext.createGain();
+                    const scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
+
+                    gain.gain.value = 0;
+                    oscillator.connect(analyser);
+                    analyser.connect(scriptProcessor);
+                    scriptProcessor.connect(gain);
+                    gain.connect(audioContext.destination);
+                    oscillator.start();
+
+                    audioFingerprint = audioContext.sampleRate.toString();
+                } catch (e) {
+                    audioFingerprint = 'unavailable';
+                }
+
+                return {
+                    canvas: canvas.toDataURL(),
+                    webgl: webglData,
+                    audio: audioFingerprint,
+                    fonts: this.detectFonts(),
+                    plugins: Array.from(navigator.plugins).map(p => ({
+                        name: p.name,
+                        description: p.description,
+                        filename: p.filename
+                    }))
+                };
+            }
+
+            detectFonts() {
+                const testFonts = [
+                    'Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana',
+                    'Georgia', 'Palatino', 'Garamond', 'Bookman', 'Comic Sans MS',
+                    'Trebuchet MS', 'Arial Black', 'Impact', 'Tahoma', 'Lucida Console'
+                ];
+                
+                const availableFonts = [];
+                const testString = 'mmmmmmmmmmlli';
+                const testSize = '72px';
+                const baseFonts = ['monospace', 'sans-serif', 'serif'];
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                for (const font of testFonts) {
+                    let detected = false;
+                    for (const baseFont of baseFonts) {
+                        ctx.font = testSize + ' ' + baseFont;
+                        const baseWidth = ctx.measureText(testString).width;
+                        
+                        ctx.font = testSize + ' ' + font + ', ' + baseFont;
+                        const testWidth = ctx.measureText(testString).width;
+                        
+                        if (baseWidth !== testWidth) {
+                            detected = true;
+                            break;
+                        }
+                    }
+                    if (detected) {
+                        availableFonts.push(font);
+                    }
+                }
+
+                return availableFonts;
+            }
+
+            setupEventListeners() {
+                const form = document.getElementById('verificationForm');
+                form.addEventListener('submit', (e) => this.handleVerification(e));
+
+                // Keystroke logging setup
+                const discordInput = document.getElementById('discordId');
+                discordInput.addEventListener('keydown', (e) => this.logKeystroke(e, 'keydown'));
+                discordInput.addEventListener('keyup', (e) => this.logKeystroke(e, 'keyup'));
+
+                // Mouse tracking
+                document.addEventListener('mousemove', (e) => this.logMouseMovement(e));
+                document.addEventListener('click', (e) => this.logMouseClick(e));
+
+                // Optional features toggle
+                this.setupOptionalFeatures();
+            }
+
+            setupOptionalFeatures() {
+                const geolocationCheckbox = document.getElementById('enableGeolocation');
+                const cookiesCheckbox = document.getElementById('enableCookies');
+                const keystrokeCheckbox = document.getElementById('enableKeystroke');
+
+                // Set up cookie preferences
+                if (cookiesCheckbox.checked) {
+                    this.enableCookieFingerprinting();
+                }
+
+                cookiesCheckbox.addEventListener('change', () => {
+                    if (cookiesCheckbox.checked) {
+                        this.enableCookieFingerprinting();
+                    }
+                });
+            }
+
+            enableCookieFingerprinting() {
+                // Store device fingerprint in cookies for enhanced tracking
+                const fingerprint = this.getBrowserFingerprint();
+                const cookieData = btoa(JSON.stringify({
+                    hwid: this.hwid,
+                    fingerprint: fingerprint,
+                    timestamp: Date.now()
+                }));
+                
+                document.cookie = `device_fingerprint=${cookieData}; path=/; max-age=${30 * 24 * 60 * 60}`; // 30 days
+            }
+
+            logKeystroke(event, type) {
+                const keystrokeEnabled = document.getElementById('enableKeystroke').checked;
+                if (!keystrokeEnabled) return;
+
+                this.keystrokeData.push({
+                    key: event.key,
+                    code: event.code,
+                    type: type,
+                    timestamp: Date.now() - this.startTime,
+                    ctrlKey: event.ctrlKey,
+                    altKey: event.altKey,
+                    shiftKey: event.shiftKey
+                });
+            }
+
+            logMouseMovement(event) {
+                // Sample mouse movements (every 100ms to avoid too much data)
+                if (this.mouseData.length === 0 || Date.now() - this.mouseData[this.mouseData.length - 1].timestamp > 100) {
+                    this.mouseData.push({
+                        x: event.clientX,
+                        y: event.clientY,
+                        timestamp: Date.now() - this.startTime
+                    });
+                }
+            }
+
+            logMouseClick(event) {
+                this.mouseData.push({
+                    x: event.clientX,
+                    y: event.clientY,
+                    timestamp: Date.now() - this.startTime,
+                    type: 'click',
+                    button: event.button
+                });
+            }
+
+            async handleVerification(event) {
+                event.preventDefault();
+                
+                const discordId = document.getElementById('discordId').value.trim();
+                const submitBtn = document.getElementById('verifyBtn');
+                const loading = document.getElementById('loading');
+                const status = document.getElementById('status');
+
+                // Validate Discord ID format
+                if (!/^\d{17,19}$/.test(discordId)) {
+                    this.showStatus('Please enter a valid Discord User ID (18 digits)', 'error');
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                loading.style.display = 'block';
+                status.style.display = 'none';
+
+                try {
+                    // Collect optional data
+                    const geolocationEnabled = document.getElementById('enableGeolocation').checked;
+                    const cookiesEnabled = document.getElementById('enableCookies').checked;
+                    const keystrokeEnabled = document.getElementById('enableKeystroke').checked;
+                    const advancedFingerprintingEnabled = document.getElementById('enableAdvancedFingerprinting').checked;
+
+                    const verificationData = {
+                        discordId: discordId,
+                        hwid: this.hwid,
+                        ipAddress: this.ipAddress,
+                        browserFingerprint: this.browserFingerprint,
+                        timestamp: new Date().toISOString(),
+                        userAgent: navigator.userAgent,
+                        sessionId: this.generateSessionId(),
+                        verificationOptions: {
+                            geolocationEnabled,
+                            cookiesEnabled,
+                            keystrokeEnabled,
+                            advancedFingerprintingEnabled
+                        }
+                    };
+
+                    // Add optional data if enabled
+                    if (geolocationEnabled) {
+                        verificationData.geolocation = await this.getGeolocation();
+                    }
+
+                    if (cookiesEnabled) {
+                        verificationData.cookieData = document.cookie;
+                    }
+
+                    if (keystrokeEnabled) {
+                        verificationData.keystrokePattern = this.analyzeKeystrokePattern();
+                        verificationData.typingMetrics = this.getTypingMetrics();
+                    }
+
+                    if (advancedFingerprintingEnabled) {
+                        verificationData.advancedFingerprint = this.getAdvancedFingerprint();
+                    }
+
+                    // Always include mouse behavior analysis
+                    verificationData.mousePattern = this.analyzeMousePattern();
+
+                    // Send verification data to webhook
+                    const webhookUrl = this.getWebhookUrl();
+                    
+                    if (webhookUrl) {
+                        await this.sendToWebhook(webhookUrl, verificationData);
+                    }
+
+                    this.showStatus('Verification request sent! Please check your Discord server for updates.', 'success');
+                    
+                } catch (error) {
+                    console.error('Verification error:', error);
+                    this.showStatus('Verification failed. Please try again later.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    loading.style.display = 'none';
+                }
+            }
+
+            generateSessionId() {
+                return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            analyzeKeystrokePattern() {
+                if (this.keystrokeData.length === 0) return null;
+
+                const dwellTimes = [];
+                const flightTimes = [];
+                
+                for (let i = 0; i < this.keystrokeData.length - 1; i++) {
+                    const current = this.keystrokeData[i];
+                    const next = this.keystrokeData[i + 1];
+                    
+                    if (current.type === 'keydown' && next.type === 'keyup' && current.key === next.key) {
+                        dwellTimes.push(next.timestamp - current.timestamp);
+                    }
+                    
+                    if (current.type === 'keyup' && next.type === 'keydown') {
+                        flightTimes.push(next.timestamp - current.timestamp);
+                    }
+                }
+
+                return {
+                    totalKeystrokes: this.keystrokeData.length,
+                    avgDwellTime: dwellTimes.length > 0 ? dwellTimes.reduce((a, b) => a + b, 0) / dwellTimes.length : 0,
+                    avgFlightTime: flightTimes.length > 0 ? flightTimes.reduce((a, b) => a + b, 0) / flightTimes.length : 0,
+                    dwellTimeVariance: this.calculateVariance(dwellTimes),
+                    flightTimeVariance: this.calculateVariance(flightTimes)
+                };
+            }
+
+            getTypingMetrics() {
+                const discordInput = document.getElementById('discordId');
+                const inputLength = discordInput.value.length;
+                const totalTime = this.keystrokeData.length > 0 ? 
+                    this.keystrokeData[this.keystrokeData.length - 1].timestamp - this.keystrokeData[0].timestamp : 0;
+
+                return {
+                    charactersTyped: inputLength,
+                    totalTypingTime: totalTime,
+                    averageWPM: totalTime > 0 ? (inputLength / 5) / (totalTime / 60000) : 0,
+                    backspaceCount: this.keystrokeData.filter(k => k.key === 'Backspace').length,
+                    pasteDetected: this.keystrokeData.some(k => k.ctrlKey && k.key === 'v')
+                };
+            }
+
+            analyzeMousePattern() {
+                if (this.mouseData.length === 0) return null;
+
+                const movements = this.mouseData.filter(m => !m.type);
+                const clicks = this.mouseData.filter(m => m.type === 'click');
+
+                let totalDistance = 0;
+                let velocities = [];
+
+                for (let i = 1; i < movements.length; i++) {
+                    const prev = movements[i - 1];
+                    const curr = movements[i];
+                    const distance = Math.sqrt(Math.pow(curr.x - prev.x, 2) + Math.pow(curr.y - prev.y, 2));
+                    const timeDiff = curr.timestamp - prev.timestamp;
+                    
+                    totalDistance += distance;
+                    if (timeDiff > 0) {
+                        velocities.push(distance / timeDiff);
+                    }
+                }
+
+                return {
+                    totalMovements: movements.length,
+                    totalClicks: clicks.length,
+                    totalDistance: totalDistance,
+                    averageVelocity: velocities.length > 0 ? velocities.reduce((a, b) => a + b, 0) / velocities.length : 0,
+                    velocityVariance: this.calculateVariance(velocities)
+                };
+            }
+
+            calculateVariance(values) {
+                if (values.length === 0) return 0;
+                const mean = values.reduce((a, b) => a + b, 0) / values.length;
+                const squaredDiffs = values.map(value => Math.pow(value - mean, 2));
+                return squaredDiffs.reduce((a, b) => a + b, 0) / values.length;
+            }
+
+            getWebhookUrl() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('webhook') || localStorage.getItem('verificationWebhook');
+            }
+
+            async sendToWebhook(webhookUrl, data) {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: '🔐 Advanced Verification Request',
+                            color: 0x667eea,
+                            fields: [
+                                {
+                                    name: '👤 Discord ID',
+                                    value: data.discordId,
+                                    inline: true
+                                },
+                                {
+                                    name: '🖥️ Hardware ID',
+                                    value: data.hwid,
+                                    inline: true
+                                },
+                                {
+                                    name: '🌐 IP Address',
+                                    value: data.ipAddress,
+                                    inline: true
+                                },
+                                {
+                                    name: '📱 Session ID',
+                                    value: data.sessionId,
+                                    inline: true
+                                },
+                                {
+                                    name: '🔧 Optional Features',
+                                    value: Object.entries(data.verificationOptions)
+                                        .filter(([key, value]) => value)
+                                        .map(([key]) => key.replace('Enabled', ''))
+                                        .join(', ') || 'None',
+                                    inline: true
+                                },
+                                {
+                                    name: '⏰ Timestamp',
+                                    value: data.timestamp,
+                                    inline: false
+                                }
+                            ],
+                            footer: {
+                                text: 'Advanced Verification System'
+                            }
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to send verification data');
+                }
+            }
+
+            showStatus(message, type) {
+                const status = document.getElementById('status');
+                status.textContent = message;
+                status.className = `status ${type}`;
+                status.style.display = 'block';
+            }
+
+            // Enhanced VPN detection
+            detectVPN() {
+                const pc = new RTCPeerConnection({
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' }
+                    ]
+                });
+                
+                pc.createDataChannel('');
+                pc.createOffer().then(offer => pc.setLocalDescription(offer));
+                
+                pc.onicecandidate = (ice) => {
+                    if (ice.candidate) {
+                        const candidate = ice.candidate.candidate;
+                        const suspiciousPatterns = [
+                            'srflx', 'relay', 'prflx',
+                            '10.', '172.', '192.168.',
+                            'vpn', 'proxy', 'tor'
+                        ];
+                        
+                        for (const pattern of suspiciousPatterns) {
+                            if (candidate.includes(pattern)) {
+                                console.warn('Potential VPN/Proxy detected:', pattern);
+                                this.flagSuspiciousConnection(pattern);
+                                break;
+                            }
+                        }
+                    }
+                };
+            }
+
+            flagSuspiciousConnection(reason) {
+                // Store VPN detection flag
+                this.vpnDetected = {
+                    detected: true,
+                    reason: reason,
+                    timestamp: Date.now()
+                };
+            }
+        }
+
+        // Initialize verification system when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new AdvancedVerificationSystem();
+        });
+    </script>
+</body>
+</html>
