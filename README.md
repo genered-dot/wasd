@@ -14,11 +14,14 @@ A comprehensive Discord verification system that combines a static GitHub Pages 
 
 ### Discord Bot Features
 - **Modern Slash Commands**: Full slash command implementation
-- **Automatic Role Management**: Auto-assign verified/unverified roles
-- **HWID Duplicate Detection**: Prevents multiple accounts per device
+- **Automatic Role Management**: Auto-assign verified/unverified/custom roles
+- **HWID Duplicate Detection**: Prevents multiple accounts per device with admin alerts
 - **VPN/Proxy Detection**: Advanced IP analysis and blocking
-- **Blacklist System**: Automatic blacklisting after failed attempts
-- **Whitelist System**: Special access for trusted users
+- **Blacklist System**: Automatic blacklisting after failed attempts with admin pings
+- **Whitelist System**: Special access for trusted users (hashed data only)
+- **Invite Tracking**: Track who invited whom with detailed logging
+- **Administrator Alerts**: Automatic pinging when alts/blacklists are detected
+- **Auto-Role System**: Configurable roles assigned after verification
 - **Data Export**: JSON export for owner and whitelisted users
 - **Permission Checks**: Comprehensive permission validation
 - **Owner-Only Commands**: Secure administrative controls
@@ -59,10 +62,7 @@ BOT_TOKEN=your_discord_bot_token_here
 
 #### Running the Bot
 ```bash
-# Basic bot
-python bot.py
-
-# Enhanced bot (recommended)
+# Run the enhanced bot
 python enhanced_bot.py
 ```
 
@@ -75,7 +75,10 @@ python enhanced_bot.py
 ### Owner Commands (ID: 945344266404782140)
 - `/config <setting> [value]` - Configure bot settings
 - `/blacklist <action> [user_id]` - Manage blacklist
-- `/whitelist <action> [user_id]` - Manage whitelist  
+- `/unblacklist <user_id>` - Remove user from blacklist
+- `/whitelist <action> [user_id]` - Manage whitelist (hashed data access)
+- `/autorole <setting> [value]` - Configure automatic role assignment
+- `/invites <action> [user]` - Manage invite tracking
 - `/unverify <user_id>` - Remove user verification
 - `/export [type]` - Export verification data
 - `/stats` - View verification statistics
@@ -104,6 +107,15 @@ python enhanced_bot.py
 
 # Enable/disable auto-blacklist
 /config auto_blacklist true
+
+# Configure invite tracking
+/config invite_tracking true
+/config invite_channel #invite-logs
+
+# Configure auto-roles
+/autorole enable
+/autorole role @Member
+/autorole unverified_enable
 ```
 
 ### Required Bot Permissions
@@ -113,6 +125,8 @@ python enhanced_bot.py
 - Read Message History
 - Embed Links
 - Attach Files
+- Manage Guild (for invite tracking)
+- View Audit Log (recommended)
 
 ## 🔒 Security Features
 
@@ -145,6 +159,8 @@ The system collects:
 - Browser Fingerprint
 - Verification Timestamp
 - User Information
+- Invite Information (who invited whom)
+- Failed Attempt Tracking
 
 ### Data Access Levels
 1. **Owner**: Full access to all data including raw IPs
@@ -178,11 +194,15 @@ Modify bot files to add:
 ```
 ├── index.html              # Static verification website
 ├── bot/
-│   ├── bot.py              # Basic Discord bot
-│   ├── enhanced_bot.py     # Enhanced bot with extra features
+│   ├── enhanced_bot.py     # Enhanced Discord bot with all features
 │   ├── requirements.txt    # Python dependencies
-│   └── .env.example        # Environment variables template
+│   ├── .env.example        # Environment variables template
+│   ├── verification_data.json  # User verification data (auto-created)
+│   ├── bot_config.json     # Bot configuration (auto-created)
+│   └── invite_data.json    # Invite tracking data (auto-created)
+├── setup.py                # Automated setup script
 ├── README.md               # This file
+├── SETUP_GUIDE.md         # Detailed setup instructions
 └── .gitignore             # Git ignore file
 ```
 
